@@ -38,9 +38,6 @@ jobs:
       - name: unzip pmftools
         run: |
           unzip pmftools.zip
-          mkdir -p tools/bin
-          mv pmftools/tools/psmfdump.exe tools/bin/
-          mv pmftools/tools/ffmpeg.exe tools/bin/
 
       - name: download attachment from comment
         if: ${{ steps.video-url.outputs.match != '' }}
@@ -51,12 +48,12 @@ jobs:
       - name: dump video and audio
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          ./tools/bin/psmfdump.exe /tmp/${{ steps.video-name.outputs.group1 }} -a /tmp/${{ steps.video-name.outputs.group1 }}.oma -v /tmp/${{ steps.video-name.outputs.group1 }}.264
+          ./tools/psmfdump.exe /tmp/${{ steps.video-name.outputs.group1 }} -a /tmp/${{ steps.video-name.outputs.group1 }}.oma -v /tmp/${{ steps.video-name.outputs.group1 }}.264
 
       - name: compose video
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          ./tools/bin/ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
+          ./tools/ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
       
       - name: upload video
         if: ${{ steps.video-url.outputs.match != '' }}
