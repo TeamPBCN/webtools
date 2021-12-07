@@ -29,14 +29,11 @@ jobs:
           regex: '\[(.*)\]\(.*\.zip\)'
       
       - name: download latest release of TeamPBCN/pmftools
-        uses: dsaltares/fetch-gh-release-asset@master
-        id: download-release
+        uses: robinraju/release-downloader@v1.3
         with:
-          repo: TeamPBCN/pmftools
-          version: 'tags/1.0'
-          file: 'pmftools.zip'
-          target: 'pmftools.zip'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: TeamPBCN/pmftools
+          latest: true
+          fileName: pmftools.zip
       
       - name: unzip pmftools
         run: |
