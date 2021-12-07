@@ -15,7 +15,8 @@ jobs:
         uses: actions-ecosystem/action-regex-match@v2
         id: video-url
         with:
-          text: ${{ github.event.comment.body }}
+          text: |
+            '${{ github.event.comment.body }}'
           regex: '\[.*\]\((.*\.zip)\)'
 
       - name: get attached file name
@@ -23,7 +24,8 @@ jobs:
         uses: actions-ecosystem/action-regex-match@v2
         id: video-name
         with:
-          text: ${{ github.event.comment.body }}
+          text: |
+            '${{ github.event.comment.body }}'
           regex: '\[(.*)\]\(.*\.zip\)'
 
       - name: checkout pmftools
