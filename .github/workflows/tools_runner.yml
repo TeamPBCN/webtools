@@ -16,15 +16,15 @@ jobs:
       - id: video-url
       - with:
           text: ${{ github.event.comment.body }}
-          regex: '\[.*\]\((.*\).zip\)'
+          regex: '\[.*\]\((.*\.zip)\)'
 
-      - name: get video file name
+      - name: get attached file name
         if: ${{ steps.regex-match.outputs.match != '' }}
       - uses: actions-ecosystem/action-regex-match@v2
       - id: video-name
       - with:
           text: ${{ github.event.comment.body }}
-          regex: '\[.*\]\((.*\.zip)\)'
+          regex: '\[(.*)\]\(.*\.zip\)'
 
       - name: checkout pmftools
         if: ${{ steps.regex-match.outputs.match != '' }}
@@ -42,25 +42,25 @@ jobs:
       - name: download attachment from comment
         if: ${{ steps.regex-match.outputs.match != '' }}
       - run: |
-          curl -L -o /tmp/${{ steps.video-name.outputs.match }}.zip ${{ steps.video-url.outputs.match }}
-          unzip /tmp/${{ steps.video-name.outputs.match }}.zip
+          curl -L -o /tmp/${{ steps.video-name.outputs.group1 }}.zip ${{ steps.video-url.outputs.group1 }}
+          unzip /tmp/${{ steps.video-name.outputs.group1 }}.zip
       
       - name: dump video and audio
         if: ${{ steps.regex-match.outputs.match != '' }}
       - run: |
-          ./tools/bin/psmfdump.exe /tmp/${{ steps.video-name.outputs.match }} -a /tmp/${{ steps.video-name.outputs.match }}.oma -v /tmp/${{ steps.video-name.outputs.match }}.264
+          ./tools/bin/psmfdump.exe /tmp/${{ steps.video-name.outputs.group1 }} -a /tmp/${{ steps.video-name.outputs.group1 }}.oma -v /tmp/${{ steps.video-name.outputs.group1 }}.264
 
       - name: compose video
         if: ${{ steps.regex-match.outputs.match != '' }}
       - run: |
-          ffmpeg -i /tmp/${{ steps.video-name.outputs.match }}.264 -i /tmp/${{ steps.video-name.outputs.match }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.match }}.mp4
+          ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
       
       - name: upload video
         if: ${{ steps.regex-match.outputs.match != '' }}
       - uses: actions/upload-artifact@v1
         with:
-          path: /tmp/${{ steps.video-name.outputs.match }}.mp4
-          name: ${{ steps.video-name.outputs.match }}.mp4
+          path: /tmp/${{ steps.video-name.outputs.group1 }}.mp4
+          name: ${{ steps.video-name.outputs.group1 }}.mp4
           mime-type: video/mp4
-          target-path: ${{ steps.video-name.outputs.match }}.mp4
+          target-path: ${{ steps.video-name.outputs.group1 }}.mp4
           
