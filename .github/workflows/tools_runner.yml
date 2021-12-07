@@ -63,6 +63,4 @@ jobs:
         with:
           path: ./tmp/video.mp4
           name: video.mp4
-          mime-type: video/mp4
-          target-path: video.mp4
           
