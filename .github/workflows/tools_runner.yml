@@ -27,23 +27,23 @@ jobs:
           text: |
             '${{ github.event.comment.body }}'
           regex: '\[(.*)\]\(.*\.zip\)'
-
-      - name: checkout pmftools
-        if: ${{ steps.video-url.outputs.match != '' }}
-        uses: actions/checkout@v2
+      
+      - name: download latest release of TeamPBCN/pmftools
+        uses: dsaltares/fetch-gh-release-asset@master
+        id: download-release
         with:
-          repository: 'TeamPBCN/pmftools'
-          path: '../../pmftools'
-          
-      - name: setup dotnet
-        if: ${{ steps.video-url.outputs.match != '' }}
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
-
-      - name: build psmfdump
-        if: ${{ steps.video-url.outputs.match != '' }}
-        run: dotnet build -c Release -o ./tools/bin ../../pmftools/psmfdump/psmfdump.csproj
+          repo: TeamPBCN/pmftools
+          version: 'tags/1.0'
+          file: 'pmftools.zip'
+          target: 'pmftools.zip'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: unzip pmftools
+        run: |
+          unzip pmftools.zip
+          mkdir -p tools/bin
+          mv pmftools/tools/psmfdump.exe tools/bin/
+          mv pmftools/tools/ffmpeg.exe tools/bin/
 
       - name: download attachment from comment
         if: ${{ steps.video-url.outputs.match != '' }}
@@ -59,7 +59,7 @@ jobs:
       - name: compose video
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
+          ./tools/bin/ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
       
       - name: upload video
         if: ${{ steps.video-url.outputs.match != '' }}
