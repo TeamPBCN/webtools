@@ -16,7 +16,7 @@ jobs:
       - id: video-url
       - with:
           text: ${{ github.event.comment.body }}
-          regex: '\[.*\]\((.*\.pmf)\)'
+          regex: '\[.*\]\((.*\).zip\)'
 
       - name: get video file name
         if: ${{ steps.regex-match.outputs.match != '' }}
@@ -24,7 +24,7 @@ jobs:
       - id: video-name
       - with:
           text: ${{ github.event.comment.body }}
-          regex: '\[.*\]\((.*\.pmf)\)'
+          regex: '\[.*\]\((.*\.zip)\)'
 
       - name: checkout pmftools
         if: ${{ steps.regex-match.outputs.match != '' }}
@@ -42,7 +42,8 @@ jobs:
       - name: download attachment from comment
         if: ${{ steps.regex-match.outputs.match != '' }}
       - run: |
-          curl -L -o /tmp/${{ steps.video-name.outputs.match }} ${{ steps.video-url.outputs.match }}
+          curl -L -o /tmp/${{ steps.video-name.outputs.match }}.zip ${{ steps.video-url.outputs.match }}
+          unzip /tmp/${{ steps.video-name.outputs.match }}.zip
       
       - name: dump video and audio
         if: ${{ steps.regex-match.outputs.match != '' }}
