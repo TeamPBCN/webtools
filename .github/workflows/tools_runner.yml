@@ -1,21 +1,65 @@
 name: Run On Comment
 
-# Controls when the workflow will run
 on:
   issue_comment:
     types:
     - created
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  echo:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  pmf2mp4:
+    if: ${{ github.event.issue.title | contains("[PMF2MP4]") }}
+    runs-on: windows-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: check if comment contains attachment
+      - uses: actions-ecosystem/action-regex-match@v2
+      - id: video-url
+      - with:
+          text: ${{ github.event.comment.body }}
+          regex: '\[.*\]\((.*\.pmf)\)'
 
-      # Runs a single command using the runners shell
-      - name: Run the tools
-        run: echo 'should do sth. here.'
+      - name: get video file name
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - uses: actions-ecosystem/action-regex-match@v2
+      - id: video-name
+      - with:
+          text: ${{ github.event.comment.body }}
+          regex: '\[.*\]\((.*\.pmf)\)'
+
+      - name: checkout pmftools
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - uses: actions/checkout@v2
+        with:
+          repository: 'TeamPBCN/pmftools'
+          
+      - name: build psmfdump
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - run: dotnet build -c Release -o ./tools/bin pmftools/psmfdump/psmfdump.csproj
+
+      - name: download attachment from comment
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - run: |
+          curl -L -o /tmp/${{ steps.video-name.outputs.match }} ${{ steps.video-url.outputs.match }}
+      
+      - name: dump video and audio
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - run: |
+          ./tools/bin/psmfdump.exe /tmp/${{ steps.video-name.outputs.match }} -a /tmp/${{ steps.video-name.outputs.match }}.oma -v /tmp/${{ steps.video-name.outputs.match }}.264
+
+      - name: compose video
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - run: |
+          ffmpeg -i /tmp/${{ steps.video-name.outputs.match }}.264 -i /tmp/${{ steps.video-name.outputs.match }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.match }}.mp4
+      
+      - name: upload video
+        if: ${{ steps.regex-match.outputs.match != '' }}
+      - uses: actions/upload-artifact@v1
+        with:
+          path: /tmp/${{ steps.video-name.outputs.match }}.mp4
+          name: ${{ steps.video-name.outputs.match }}.mp4
+          mime-type: video/mp4
+          target-path: ${{ steps.video-name.outputs.match }}.mp4
+          
