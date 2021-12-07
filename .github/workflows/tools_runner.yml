@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'TeamPBCN/pmftools'
-          path: '../pmftools'
+          path: '../../pmftools'
           
       - name: setup dotnet
         if: ${{ steps.video-url.outputs.match != '' }}
@@ -43,7 +43,7 @@ jobs:
 
       - name: build psmfdump
         if: ${{ steps.video-url.outputs.match != '' }}
-        run: dotnet build -c Release -o ./tools/bin ../pmftools/psmfdump/psmfdump.csproj
+        run: dotnet build -c Release -o ./tools/bin ../../pmftools/psmfdump/psmfdump.csproj
 
       - name: download attachment from comment
         if: ${{ steps.video-url.outputs.match != '' }}
