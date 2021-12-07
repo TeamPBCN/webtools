@@ -21,7 +21,7 @@ jobs:
 
       - name: get attached file name
         if: ${{ steps.video-url.outputs.match != '' }}
-        uses: actions-ecosystem/action-video-url@v2
+        uses: actions-ecosystem/action-regex-match@v2
         id: video-name
         with:
           text: |
