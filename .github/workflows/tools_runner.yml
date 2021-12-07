@@ -32,12 +32,15 @@ jobs:
         with:
           repository: 'TeamPBCN/pmftools'
           
-      - name: build psmfdump
+      - name: setup dotnet
         if: ${{ steps.regex-match.outputs.match != '' }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
-      - run: dotnet build -c Release -o ./tools/bin pmftools/psmfdump/psmfdump.csproj
+
+      - name: build psmfdump
+        if: ${{ steps.regex-match.outputs.match != '' }}
+        run: dotnet build -c Release -o ./tools/bin pmftools/psmfdump/psmfdump.csproj
 
       - name: download attachment from comment
         if: ${{ steps.regex-match.outputs.match != '' }}
