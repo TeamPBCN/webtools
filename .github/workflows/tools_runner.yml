@@ -42,24 +42,25 @@ jobs:
       - name: download attachment from comment
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          curl -L -o /tmp/${{ steps.video-name.outputs.group1 }}.zip ${{ steps.video-url.outputs.group1 }}
-          unzip /tmp/${{ steps.video-name.outputs.group1 }}.zip
+          mkdir tmp
+          curl -L -o ./tmp/${{ steps.video-name.outputs.group1 }}.zip ${{ steps.video-url.outputs.group1 }}
+          unzip ./tmp/${{ steps.video-name.outputs.group1 }}.zip
       
       - name: dump video and audio
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          ./tools/psmfdump.exe /tmp/${{ steps.video-name.outputs.group1 }} -a /tmp/${{ steps.video-name.outputs.group1 }}.oma -v /tmp/${{ steps.video-name.outputs.group1 }}.264
+          ./tools/psmfdump.exe ./tmp/${{ steps.video-name.outputs.group1 }} -a ./tmp/${{ steps.video-name.outputs.group1 }}.oma -v ./tmp/${{ steps.video-name.outputs.group1 }}.264
 
       - name: compose video
         if: ${{ steps.video-url.outputs.match != '' }}
         run: |
-          ./tools/ffmpeg -i /tmp/${{ steps.video-name.outputs.group1 }}.264 -i /tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 /tmp/${{ steps.video-name.outputs.group1 }}.mp4
+          ./tools/ffmpeg -i ./tmp/${{ steps.video-name.outputs.group1 }}.264 -i ./tmp/${{ steps.video-name.outputs.group1 }}.oma -c copy -s 480x270 ./tmp/${{ steps.video-name.outputs.group1 }}.mp4
       
       - name: upload video
         if: ${{ steps.video-url.outputs.match != '' }}
         uses: actions/upload-artifact@v1
         with:
-          path: /tmp/${{ steps.video-name.outputs.group1 }}.mp4
+          path: ./tmp/${{ steps.video-name.outputs.group1 }}.mp4
           name: ${{ steps.video-name.outputs.group1 }}.mp4
           mime-type: video/mp4
           target-path: ${{ steps.video-name.outputs.group1 }}.mp4
