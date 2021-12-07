@@ -7,7 +7,7 @@ on:
 
 jobs:
   pmf2mp4:
-    if: ${{ github.event.issue.title | contains("[PMF2MP4]") }}
+    if: ${{ contains( github.event.issue.title, "[PMF2MP4]" ) }}
     runs-on: windows-latest
 
     steps:
